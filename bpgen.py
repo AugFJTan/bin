@@ -1,3 +1,7 @@
+# File  : bpgen.py
+# Author: AugFJTan
+# Last Modified 30 Dec 2017 08:24 AM
+
 import sys
 import argparse
 import platform
@@ -8,11 +12,12 @@ comment_styles = ("c", "cpp", "python")
 author = "AugFJTan"
 
 class Boilerplate:
-	def __init__(self, filename, language, style, content_flag):
+	def __init__(self, filename, language, style, content_flag, metadata_flag):
 		self.filename = filename
 		self.language = language
 		self.style = style
 		self.content_flag = content_flag
+		self.metadata_flag = metadata_flag
 	
 	def output_file(self):
 		comment_start  = ""
@@ -30,7 +35,8 @@ class Boilerplate:
 		elif self.style == "Python":
 			comment_start  = "#"
 			comment_middle = "#"
-			metadata = "\n# Python " + platform.python_version()
+			if self.metadata_flag:
+				metadata = "\n# Python " + platform.python_version()
 		
 		current_time = time.strftime("%d %b %Y %I:%M %p", time.localtime())
 
@@ -142,13 +148,7 @@ def validate_comment_style(language, style):
 	
 	invalid_style = False
 	
-	if language == "C":
-		if style != "C" and style != "C++":
-			invalid_style = True
-	elif language == "C++":
-		if style != "C" and style != "C++":
-			invalid_style = True
-	elif language == "Java":
+	if language == "C" or language == "C++" or language == "Java":
 		if style != "C" and style != "C++":
 			invalid_style = True
 	elif language == "Python":
@@ -164,7 +164,8 @@ def validate_comment_style(language, style):
 def eval_cmd_line_options():
 	parser = argparse.ArgumentParser(prog="bpgen", description="Create boilerplate code to save on typing!")
 	# optional arguments
-	parser.add_argument("-n", "--nocontent", help="only include block comment and leave out content", action="store_true")
+	parser.add_argument("-n", "--nocontent", help="output block comment only and leave out content", action="store_true")
+	parser.add_argument("-m", "--metadata", help="output language metadata in block comment", action="store_true")
 	parser.add_argument("--lang", help="set boilerplate code to specified language syntax")
 	parser.add_argument("--style", help="set comment style")
 	# positional arguments
@@ -174,6 +175,7 @@ def eval_cmd_line_options():
 	
 	# defaults
 	content_flag = True
+	metadata_flag = False
 	
 	filename = validate_filename(args.file)
 	
@@ -195,7 +197,10 @@ def eval_cmd_line_options():
 	if args.nocontent:
 		content_flag = False
 		
-	return Boilerplate(filename, language, style, content_flag)
+	if args.metadata:
+		metadata_flag = True
+		
+	return Boilerplate(filename, language, style, content_flag, metadata_flag)
 
 boilerplate = eval_cmd_line_options()
 boilerplate.output_file()
