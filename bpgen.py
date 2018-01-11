@@ -12,8 +12,9 @@ comment_styles = ("c", "cpp", "python")
 author = "AugFJTan"
 
 class Boilerplate:
-	def __init__(self, filename, language, style, content_flag, metadata_flag):
+	def __init__(self, filename, ext, language, style, content_flag, metadata_flag):
 		self.filename = filename
+		self.ext = ext
 		self.language = language
 		self.style = style
 		self.content_flag = content_flag
@@ -50,8 +51,20 @@ class Boilerplate:
 """.format(self.filename, author, current_time, comment_start, comment_middle, comment_end, metadata)
 
 		content = ""
-	
-		if self.language == "C" or self.language == "C++":
+		
+		if self.ext == "h":
+			content += """\
+#ifndef {0}
+#define {0}
+
+
+
+#endif {1} {0}""".format(self.filename.replace('.', '_').upper(), comment_start)
+			if self.style == "C":
+				content += " */\n"
+			else:
+				content += "\n"
+		elif self.language == "C" or self.language == "C++":
 			if self.content_flag:
 				if self.language == "C":
 					content += "#include <stdio.h>\n"
@@ -109,14 +122,10 @@ def validate_filename(filename):
 		print("error: filename must end with file extention")
 		sys.exit()
 	
-	return filename
+	return [filename, filename[dot_index+1:]]
 
-def derive_language(filename):
-	dot_index = filename.find('.')
-	
-	ext = filename[dot_index+1:]
-	
-	if ext == "c":
+def derive_language(ext):
+	if ext == "c" or ext == "h":
 		language = "C"
 	elif ext == "cpp":
 		language = "C++"
@@ -177,11 +186,11 @@ def eval_cmd_line_options():
 	content_flag = True
 	metadata_flag = False
 	
-	filename = validate_filename(args.file)
+	filename, ext = validate_filename(args.file)
 	
 	if args.lang == None:
 		# set language based on extention
-		language = derive_language(filename)
+		language = derive_language(ext)
 	else:
 		# set language based on command line argument
 		language = validate_language(args.lang)
@@ -189,6 +198,8 @@ def eval_cmd_line_options():
 	if args.style == None:
 		if language == "Python":
 			style = "Python"
+		elif language == "C++" or language == "Java":
+			style = "C++"
 		else:
 			style = "C"
 	else:
@@ -200,7 +211,7 @@ def eval_cmd_line_options():
 	if args.metadata:
 		metadata_flag = True
 		
-	return Boilerplate(filename, language, style, content_flag, metadata_flag)
+	return Boilerplate(filename, ext, language, style, content_flag, metadata_flag)
 
 boilerplate = eval_cmd_line_options()
 boilerplate.output_file()
