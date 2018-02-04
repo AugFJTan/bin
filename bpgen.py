@@ -1,14 +1,14 @@
 # File  : bpgen.py
 # Author: AugFJTan
-# Last Modified 30 Dec 2017 08:24 AM
+# Last Modified 4 Feb 2018 05:01 PM
 
 import sys
 import argparse
 import platform
 import time
 
-available_languages = ("c", "cpp", "java", "python")
-comment_styles = ("c", "cpp", "python")
+available_languages = ("c", "cpp", "java", "python", "html")
+comment_styles = ("c", "cpp", "python", "html")
 author = "AugFJTan"
 
 class Boilerplate:
@@ -38,6 +38,9 @@ class Boilerplate:
 			comment_middle = "#"
 			if self.metadata_flag:
 				metadata = "\n# Python " + platform.python_version()
+		elif self.style == "HTML":
+			comment_start = "<!--\n"
+			comment_end = "\n-->"
 		
 		current_time = time.strftime("%d %b %Y %I:%M %p", time.localtime())
 
@@ -91,6 +94,18 @@ int main()
 			else:
 				content += "\n\t\n"
 			content += "}\n"
+		elif self.language == "HTML":
+			content += """\
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{}</title>
+	</head>
+	<body>
+		
+	</body>
+</html>
+""".format(self.filename)
 
 		output = comment + content
 
@@ -107,6 +122,8 @@ def get_language_string(language):
 		return "Java"
 	elif language == "python":
 		return "Python"
+	elif language == "html":
+		return "HTML"
 		
 def validate_filename(filename):
 	invalid_characters = ('\\', '/', ':', '*', '?', '<', '>', '|')
@@ -133,6 +150,8 @@ def derive_language(ext):
 		language = "Java"
 	elif ext == "py" or ext == "pyw":
 		language = "Python"
+	elif ext == "html":
+		language = "HTML"
 	else:
 		print("error: '{}' is not a default file extention; please specify a language".format(ext))
 		sys.exit()
@@ -200,6 +219,8 @@ def eval_cmd_line_options():
 			style = "Python"
 		elif language == "C++" or language == "Java":
 			style = "C++"
+		elif language == "HTML":
+			style = "HTML"
 		else:
 			style = "C"
 	else:
