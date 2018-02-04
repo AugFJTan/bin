@@ -1,6 +1,6 @@
 # File  : bpgen.py
 # Author: AugFJTan
-# Last Modified 4 Feb 2018 05:01 PM
+# Last Modified 4 Feb 2018 05:12 PM
 
 import sys
 import argparse
@@ -95,7 +95,8 @@ int main()
 				content += "\n\t\n"
 			content += "}\n"
 		elif self.language == "HTML":
-			content += """\
+			if self.content_flag:
+				content += """\
 <!DOCTYPE html>
 <html>
 	<head>
