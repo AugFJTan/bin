@@ -1,6 +1,6 @@
 # File  : bpgen.py
 # Author: AugFJTan
-# Last Modified 4 Feb 2018 05:12 PM
+# Last Modified 7 Feb 2018 12:37 PM
 
 import sys
 import argparse
@@ -182,6 +182,9 @@ def validate_comment_style(language, style):
 			invalid_style = True
 	elif language == "Python":
 		if style != "Python":
+			invalid_style = True
+	elif language == "HTML":
+		if style != "HTML":
 			invalid_style = True
 	
 	if invalid_style:
